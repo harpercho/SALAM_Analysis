@@ -1,6 +1,14 @@
 # A module for functions to return required quantities.
 # Halo can be a halo copy. Storage must be dict.
     
+import os
+import sys
+import numpy as np
+import pickle
+import pynbody
+import pynbody.filt as filt
+import multiprocessing
+import concurrent.futures
 
 def getMasses(halo, storage):
     mvir = np.sum(halo['mass'].in_units('Msol'))

@@ -2,8 +2,10 @@ import numpy as np
 import pynbody
 import pynbody.filt as filt
 import pynbody.units as units
+import pynbody.analysis.profile as profile
 import matplotlib.pyplot as plt
-import sys, os, glob, pickle
+import sys, os, glob, pickle, struct
+import plot_tools
 
 def SMF_Mortlock(ax, z, continuous=False):
     ''' 
@@ -14,30 +16,30 @@ def SMF_Mortlock(ax, z, continuous=False):
         return None
 
     if z == 1:
-        mstar = 10**np.array([8.6,8.9,9.1,9.4,9.6,9.9,10.1,10.4,10.6,10.9,11.1,11.4,11.6,11.9])
+        mstar = np.array([8.6,8.9,9.1,9.4,9.6,9.9,10.1,10.4,10.6,10.9,11.1,11.4,11.6,11.9])
         y = np.array([-1.79,-1.83,-1.99,-2.06,-2.31,-2.40,-2.48,-2.60,-2.67,-2.55,-2.89,-3.17,-3.47,-4.17])
         yerr = np.array([0.12,0.12,0.11,0.12,0.13,0.12,0.13,0.13,0.13,0.14,0.15,0.15,0.18,0.24])
     
     if z == 2:
-        mstar = 10**np.array([9.4,9.6,9.9,10.1,10.4,10.6,10.9,11.1,11.4,11.6,11.9])
+        mstar = np.array([9.4,9.6,9.9,10.1,10.4,10.6,10.9,11.1,11.4,11.6,11.9])
         y = np.array([-2.17,-2.15,-2.21,-2.32,-2.62,-2.70,-2.89,-3.45,-3.64 ,-3.98,-4.75])
         yerr = np.array([0.12,0.12,0.12,0.13,0.13,0.13,0.13,0.42,0.4,0.54,1.81])
     
     if z == 3:
-        mstar = 10**np.array([9.6,9.9,10.1,10.4,10.6,10.9,11.1,11.4,11.6,11.9,12.1])
+        mstar = np.array([9.6,9.9,10.1,10.4,10.6,10.9,11.1,11.4,11.6,11.9,12.1])
         y = np.array([-2.45,-2.56,-2.62,-2.88,-2.98,-3.14,-3.96,-3.78,-3.96,-3.96,-3.96])
         yerr = np.array([0.12,0.13,0.13,0.14,0.14,0.16,0.20,0.17,0.19,0.19,0.22])
 
     if continuous:
-        y_upper = 10**np.array(y + yerr)
-        y_lower = 10**np.array(y - yerr)
+        y_upper = np.array(y + yerr)
+        y_lower = np.array(y - yerr)
         ax.plot(np.log10(mstar), y, color="black")     
         ax.fill_between(np.log10(mstar), y_upper,  y_lower,
                          label='Mortlock 2013', color='grey', alpha=0.5)
         return None
     
     ax.plot(np.log10(mstar), 10**y, 'o')
-    return None
+    return 
 
 def SMF_Song(ax, z, color='steelblue'):
     print("started")
@@ -166,3 +168,8 @@ def SFR_Whitacker(ax, z, color='blue'):
     ax.legend()
 
     return None
+
+# def Baldry():
+#     """Plotting GSMF values from Baldry et al. (2008)"""
+
+#     def DoubleSchecter(mstar, a_1, a_2,)

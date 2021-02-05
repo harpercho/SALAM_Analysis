@@ -2,8 +2,10 @@ import numpy as np
 import pynbody
 import pynbody.filt as filt
 import pynbody.units as units
+import pynbody.analysis.profile as profile
 import matplotlib.pyplot as plt
-import sys, os, glob, pickle
+import sys, os, glob, pickle, struct
+import plot_tools
 
 def SMF_Mortlock(ax, z, continuous=False):
     ''' 
@@ -166,3 +168,8 @@ def SFR_Whitacker(ax, z, color='blue'):
     ax.legend()
 
     return None
+
+# def Baldry():
+#     """Plotting GSMF values from Baldry et al. (2008)"""
+
+#     def DoubleSchecter(mstar, a_1, a_2,)
