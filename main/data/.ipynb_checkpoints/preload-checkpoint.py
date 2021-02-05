@@ -67,24 +67,24 @@ def main(path, step):
         halolist = makeFilteredHalos(halo_catalogue)
         pickle.dump(halolist, open(LIST_PATH,'wb'))
             
-    args = [] # list of tuple arguments to be passed to the executor map function
-    for halo_idx in halolist:
-            args.append([halo_idx, {}])
+#     args = [] # list of tuple arguments to be passed to the executor map function
+#     for halo_idx in halolist:
+#             args.append([halo_idx, {}])
     
-    # Check if there is an existing output file and create a full list of halodict storages
-    if os.path.exists(OUTPUT):
-        outd = pickle.load(open(OUTPUT,'rb'))
-        for item in outd:
-            try:
-                i = halolist.index(item['ID'])
-                args[i][1] = item
-            except ValueError:
-                pass
+#     # Check if there is an existing output file and create a full list of halodict storages
+#     if os.path.exists(OUTPUT):
+#         outd = pickle.load(open(OUTPUT,'rb'))
+#         for item in outd:
+#             try:
+#                 i = halolist.index(item['ID'])
+#                 args[i][1] = item
+#             except ValueError:
+#                 pass
 
     # Distribute
     with concurrent.futures.ProcessPoolExecutor(max_workers=PROC_N) as executor:
-        #result = executor.map(make_future_runner, range(1,15))
-        result = executor.map(make_future_runner, halolist)
+        result = executor.map(make_future_runner, range(1,15))
+        #result = executor.map(make_future_runner, halolist)
         flat_results = list(result)
     
     # Save it all
