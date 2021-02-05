@@ -1,13 +1,24 @@
+# A module for functions to return required quantities.
+# Halo can be a halo copy. Storage must be dict.
+    
+import os
+import sys
+import numpy as np
+import pickle
+import pynbody
+import pynbody.filt as filt
+import multiprocessing
+import concurrent.futures
+
 def getMasses(halo, storage):
-    # Halo can be a halo copy. Storage must be dict.
     mvir = np.sum(halo['mass'].in_units('Msol'))
     mstar = np.sum(halo.star['mass'].in_units('Msol'))
     mgas = np.sum(halo.gas['mass'].in_units('Msol'))
     mdm = np.sum(halo.dm['mass'].in_units('Msol'))
     
-    storage.update({'mvir': mvir, 'mstar':mstar, 'mgas':mgas, 'mdm': mdm})
+    storage.update({'mstar':mstar, 'mgas':mgas})
     
-    print("Obtained masses", flush=True)
+    #print("Obtained masses", flush=True)
     
 def getColdGas(halo, storage, temp):
     # Halo can be a halo copy. Storage must be dict.
@@ -15,7 +26,7 @@ def getColdGas(halo, storage, temp):
     
     storage['mgascool'] = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
     
-    print("Obtained coldgas", flush = True)
+    #print("Obtained coldgas", flush = True)
     
 def getParticleInfo(halo, storage):
     
@@ -26,7 +37,7 @@ def getParticleInfo(halo, storage):
     
     storage.update({'npart': npart, 'nstar': nstar, 'ngas': ngas, 'ndm':ndm})
     
-    print("Obtained particle info", flush = True)
+    #print("Obtained particle info", flush = True)
 
 def getSFR(halo, storage, Myr):
     # Halo can be a copy
@@ -34,7 +45,7 @@ def getSFR(halo, storage, Myr):
     fifmyrf = filt.LowPass('age', str(Myr) + ' Myr')
     storage['sfr_'+str(Myr)] = np.sum(halo.star[fifmyrf]['mass'].in_units('Msol')) / (Myr*10**6)
     
-    print("Obtained SFR", flush = True)
+    #print("Obtained SFR", flush = True)
     
 def getMetallicity(halo, storage):
     mgas = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
@@ -45,7 +56,7 @@ def getMetallicity(halo, storage):
         zgas = 0
     storage['z_gas'] = zgas
     
-    print("Obtained metallicity", flush = True)
+    #print("Obtained metallicity", flush = True)
     
 def getStellarMetallicity(halo, storage, mstar):
     if mstar > 0:
@@ -53,7 +64,7 @@ def getStellarMetallicity(halo, storage, mstar):
     else:
         zstar = 0
     storage['z_star'] = zstar
-    print("Obtained STELLAR METALLICITY", flush = True)
+    #print("Obtained STELLAR METALLICITY", flush = True)
 
 def getOxygenAbundance(halo, storage, temp):
     '''
