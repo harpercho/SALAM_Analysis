@@ -103,19 +103,17 @@ def plot_coldgas(mgas,mstar):
     
 def plot_oxh(oxh,mstar):
     
+    fig, ax = plt.subplots(figsize = (9,7))
+
+    # Add tremonti observations
     tremonti = np.genfromtxt('/scratch/hc2347/references/obs/Tremonti_2004_mzr.csv',unpack=True,skip_header=2,delimiter=',')
-    
     median_tr = tremonti[3]
     sixteen_tr = tremonti[2]
     eightyfour_tr = tremonti[4]
-    
     logmstar_tr =tremonti[0]
-    
-    fig, ax = plt.subplots(figsize = (9,7))
-    
+
     x = np.log10(mstar)
     y = oxh
-    
     x,y = do_filter(x,y)
     
     hb = plt.hexbin(x, y, gridsize= 100, bins='log',cmap='Blues')
