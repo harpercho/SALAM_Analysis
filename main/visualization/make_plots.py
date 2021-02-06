@@ -1,16 +1,26 @@
 def plot_HMF(simpath, entry, ax=None):
     """Plot the halo mass function. If there are no axes given, make a figure and axes"""
-    if ax = None:
-        fig, ax = plt.subplots()
+    
+    z = entry["zred"]
+    
+    if ax == None:
+        fig, ax = plt.subplots(figsize=(7,5), dpi = 300)
         
     s = pynbody.load(simpath)
     
-    plot_mf(ax,filter_list(entry["mvir"],10**10,10**15),100,entry["zred"])
+    x, hmf = plot_tools.plot_mf(ax,plot_tools.filter_list(entry["mvir"],10**10,10**15),50,z)
+    ax.plot(x, hmf, label = "SALAM z{}".format(entry['zred']))
     stms, stsig, stmf = pynbody.analysis.halo_mass_function(s)
-    ax.semilogy(np.log10(stms),stmf,label="Sheth-Tormen", color = "#808080")
-    ax.legend()
+    ax.semilogy(np.log10(stms),stmf,label="Sheth-Tormen", color = "#808080", linestyle="--")
     
-    plt.savefig('/scractch/hc2347/rep')
+    ax.set_xlabel('$\\rm{log_{10}}(M_{vir}/\\rm M_{\odot})$')
+    ax.set_ylabel('number density [Mpc$^{-3}$]')
+    
+    ax.legend(frameon=False)
+    ax.tick_params(direction='in', which='both')
+    plt.tight_layout()
+    
+    plt.savefig("/scratch/hc2347/reports/60/HMF/z{}.png".format(z))
     
 def plot_SMF(entry):
     """Plot the stellar mass function and save reports directory."""
