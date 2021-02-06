@@ -12,29 +12,30 @@ def plot_HMF(simpath, entry, ax=None):
     
     plt.savefig('/scractch/hc2347/rep')
     
-def plot_SMF():
-    ax.set_yscale("log")
-    plot_mf(ax,filter_list(entry["mstar"],10**7, 10**12),50,entry["zred"])
+def plot_SMF(entry):
+    z = entry["zred"]
+    stellar_mass_density = plot_tools.filter_list(entry["mstar"],10**7, 10**12)
+        
+    fig, ax = plt.subplots(figsize=(7,5), dpi = 150)
     
-    plt.legend(frameon=False)
-    ax.legend()
-    
-    plt.savefig('/scratch/hc2347/reports/60/center_smf60.png')
-    
-def plot_Moster():
-    from pynbody.plot.stars import moster
-    xlabel = '$\\rm{log_{10}}(M_{200}/\\rm M_{\odot})$'
-    ylabel = '$\\rm{log_{10}}(M_{\star}/\\rm M_{\odot})$'
-    label = '$z \;=\; {}$'.format(zred)
-    c = 'steelblue'
-    
-    #Moster
-    xmasses = np.logspace(np.log10(min(entry['mvir'])),1+np.log10(max(entry['mvir'])),20)
-    ystarmasses, errors = moster(xmasses,float(entry["zred"]))
-    ax.plot(np.log10(xmasses),np.log10(np.array(ystarmasses)),color="Black",label="Moster 2013")
-    ax.plot(np.log10(xmasses),np.log10(np.array(ystarmasses)/np.array(errors)), linestyle='dashed', color = 'grey')
-    ax.plot(np.log10(xmasses),np.log10(np.array(ystarmasses)*np.array(errors)), linestyle='dashed', color = 'grey')
-    ax.fill_between(np.log10(xmasses),np.log10(np.array(ystarmasses)/np.array(errors)),y2=np.log10(np.array(ystarmasses)*np.array(errors)),
-                    color='grey', alpha=0.2)
-    
+    # Plot Stellar Mass Function from density
+    x, smf = plot_tools.plot_mf(ax, stellar_mass_density, 50, entry["zred"])
+    ax.plot(x, smf, label = 'SALAM z{}'.format(z))
+    ax.set_ylabel('number density [Mpc $^{-3}$]')
+    ax.set_xlabel('log$_{10}$(M) [M$_\odot$]')
 
+    
+    # Add observational results
+    if z < 1:
+        baldry = np.genfromtxt('obs/Baldry_2012_SMF_z0.csv',unpack=True,skip_header=1,delimiter=',')
+        moustakas = np.genfromtxt('obs/Moustakas_2013_SMF_z0.csv', unpack=True, skip_header=1, delimiter=',')
+        ax.plot(baldry[0], baldry[1]*10e-4, marker = '.', label='Baldry 2012', linestyle='None')
+        ax.plot(moustakas[0], 10**moustakas[1], marker = '+', label='Moustakas 2013', linestyle='None')
+        ax.errorbar(baldry[0], baldry[1], fmt='none')
+
+    ax.set_yscale('log')
+    ax.legend(frameon=False)
+    ax.tick_params(direction='in', which='both')
+    plt.tight_layout()
+    
+    plt.savefig("/scratch/hc2347/reports/60/SMF/z{}.png".format(z))
