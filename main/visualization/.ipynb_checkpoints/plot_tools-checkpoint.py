@@ -25,7 +25,7 @@ def load_halos_pickle(pickle_path):
 
 
 def plot_mf(a, array, n_bin, zred,vol=60.0,):
-    """Plot a mass function"""
+    """Plot a mass function. Returns x and y positions"""
     
     hist, bin_edges = np.histogram(np.log10(array),bins=n_bin)
 
@@ -36,9 +36,7 @@ def plot_mf(a, array, n_bin, zred,vol=60.0,):
         binmps[i] = np.mean([bin_edges[i],bin_edges[i+1]])
         binsize[i] = bin_edges[i+1] - bin_edges[i]
     
-    a.set_ylim(10**-6,1)
-    
-    return a.plot(binmps,hist/(vol**3)/binsize,'.',label=str(zred),alpha=0.8)
+    return binmps, hist/(vol**3)/binsize
 
 
 def filter_list(a,min_lim,max_lim):

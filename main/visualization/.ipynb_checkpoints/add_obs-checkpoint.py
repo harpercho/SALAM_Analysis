@@ -7,11 +7,23 @@ import matplotlib.pyplot as plt
 import sys, os, glob, pickle, struct
 import plot_tools
 
-def SMF_Mortlock(ax, z, continuous=False):
-    ''' 
-    Mortlock 2013
+def SMFTomczak(z):
+    """Tomczak 2014"""
+    if 0.75 <= z <= 1:
+        logMsol = np.arange(8.5, 11.5, 0.25)
+        logphi = np.array([-1.70,-1.86,-2.01,--2.1, -2.23,-2.39,-2.45,-2.45,-2.52,-2.59,-2.93,-3.47])
+    if 2.5<= z <= 3:
+        logMsol = np.arange(9.5, 11.75, 0.25)
+        logphi = np.array([-2.65, -2.78, -3.02, -3.21, -3.35,-3.74, -4, -4.14, -4.73])
+    else:
+        print("z is not in range.")
+    return logMsol, logphi
+
+def SMF_Mortlock(z, continuous=False):
+    """Mortlock 2013
     Only contains data points for z 1 2 and 3
-    '''
+    Set continuous = False to 
+    """
     if z not in [1,2,3]:
         return None
 
@@ -30,18 +42,9 @@ def SMF_Mortlock(ax, z, continuous=False):
         y = np.array([-2.45,-2.56,-2.62,-2.88,-2.98,-3.14,-3.96,-3.78,-3.96,-3.96,-3.96])
         yerr = np.array([0.12,0.13,0.13,0.14,0.14,0.16,0.20,0.17,0.19,0.19,0.22])
 
-    if continuous:
-        y_upper = np.array(y + yerr)
-        y_lower = np.array(y - yerr)
-        ax.plot(np.log10(mstar), y, color="black")     
-        ax.fill_between(np.log10(mstar), y_upper,  y_lower,
-                         label='Mortlock 2013', color='grey', alpha=0.5)
-        return None
-    
-    ax.plot(np.log10(mstar), 10**y, 'o')
-    return 
+    return mstar, y, yerr
 
-def SMF_Song(ax, z, color='steelblue'):
+def SMF_Song(z, color='steelblue'):
     print("started")
     '''
     Song 2016
@@ -51,46 +54,46 @@ def SMF_Song(ax, z, color='steelblue'):
         return None
     
     if z == 4:
-        mstar = 10**np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25,10.75, 11.25])
+        mstar = np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25,10.75, 11.25])
         y = np.array([-1.57,-1.77,-2.00,-2.22,-2.52,-2.91,-3.37,-4.00,-4.54])
-        y_upper = 10**np.array(y + np.array([0.21,0.15,0.13,0.09,0.09,0.12,0.09,0.20,0.34]))
-        y_lower = 10**np.array(y - np.array([0.16,0.13,0.10,0.09,0.09,0.05,0.12,0.25,0.55]))
+        y_upper = np.array(y + np.array([0.21,0.15,0.13,0.09,0.09,0.12,0.09,0.20,0.34]))
+        y_lower = np.array(y - np.array([0.16,0.13,0.10,0.09,0.09,0.05,0.12,0.25,0.55]))
 
     if z == 5:
-        mstar = 10**np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25,10.75, 11.25])
+        mstar = np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25,10.75, 11.25])
         y = np.array([-1.47, -1.72, -2.01, -2.33, -2.68, -3.12, -3.47, -4.12, -4.88])
-        y_upper = 10**np.array(y + np.array([0.24,0.20,0.16,0.15,0.07,0.09,0.16,0.25,0.40]))
-        y_lower = 10**np.array(y - np.array([0.21,0.20,0.16,0.10,0.14,0.11,0.14,0.38,0.61]))
+        y_upper = np.array(y + np.array([0.24,0.20,0.16,0.15,0.07,0.09,0.16,0.25,0.40]))
+        y_lower = np.array(y - np.array([0.21,0.20,0.16,0.10,0.14,0.11,0.14,0.38,0.61]))
 
     if z == 6:
-        mstar = 10**np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75,10.25])
+        mstar = np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75,10.25])
         y = np.array([-1.47,-1.81,-2.26,-2.65,-3.14,-3.69,-4.27])
-        y_upper = 10**np.array([-1.12, -1.58, -2.05, -2.50, -3.02, -3.57,-3.87])
-        y_lower = 10**np.array([-1.79, -2.09, -2.42, -2.80, -3.25, -3.82,-5.03])
+        y_upper = np.array([-1.12, -1.58, -2.05, -2.50, -3.02, -3.57,-3.87])
+        y_lower = np.array([-1.79, -2.09, -2.42, -2.80, -3.25, -3.82,-5.03])
     
     if z == 7:
-        mstar = 10**np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25,10.75, 11.25])
+        mstar = np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25,10.75, 11.25])
         y = np.array([-1.63,-2.07,-2.49,-2.96,-3.47,-4.11,-4.61,-5.24])
-        y_upper = 10**np.array(y + np.array([0.54,0.45,0.38,0.32,0.32,0.41,0.72,0.90]))
-        y_lower = 10**np.array(y - np.array([0.54,0.41,0.32,0.30,0.35,0.57,0.82,0.57]))
+        y_upper = np.array(y + np.array([0.54,0.45,0.38,0.32,0.32,0.41,0.72,0.90]))
+        y_lower = np.array(y - np.array([0.54,0.41,0.32,0.30,0.35,0.57,0.82,0.57]))
 
 
     if z == 8:
-        mstar = 10**np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75])
-        y = 10**np.array([-1.73,-2.28,-2.88,-3.45,-5.31])
-        y_upper = 10**np.array(y + np.array([1.01,0.84,0.75,0.57,0.63,1.01]))
-        y_lower = 10**np.array(y - np.array([0.84,0.64,0.47,0.60,0.78,1.64]))
+        mstar = np.array([7.25, 7.75, 8.25, 8.75, 9.25, 9.75])
+        y = np.array([-1.73,-2.28,-2.88,-3.45,-5.31])
+        y_upper = np.array(y + np.array([1.01,0.84,0.75,0.57,0.63,1.01]))
+        y_lower = np.array(y - np.array([0.84,0.64,0.47,0.60,0.78,1.64]))
     
     
-    ax.fill_between(np.log10(mstar), y_upper,  y_lower,
-                         label='Song2016', color=color, alpha=0.5)
-    ax.plot(np.log10(mstar), y, color="black")
-    print("I did something")
+#     ax.fill_between(np.log10(mstar), y_upper,  y_lower,
+#                          label='Song2016', color=color, alpha=0.5)
+#     ax.plot(np.log10(mstar), y, color="black")
+#     print("I did something")
  
-    return None
+    return mstar, y, y_upper, y_lower
 
 def SMF_Duncan(ax, z, color='magenta'):
-
+    """Duncan 2013. High redshifft stellar mass function values."""
     def Schechter(M, Phi, Mstar, alpha):
         return Phi*np.log(10)*10**((M-Mstar)*(alpha+1))*np.exp(-10**((M-Mstar)))
 
@@ -119,22 +122,13 @@ def SMF_Duncan(ax, z, color='magenta'):
         y_upper = Schechter(mstar, 3.37e-4, 10.51, -1.89)
         y_lower = Schechter(mstar, 0.01e-4, 10.51, -1.89)
     
-    ax.fill_between(np.log10(10**mstar), y_upper, y_lower,
-            label='Duncan2014', color=color, alpha=0.3)
-    ax.plot(np.log10(10**mstar), y, color='black')
-    return None
+#     ax.fill_between(np.log10(10**mstar), y_upper, y_lower,
+#             label='Duncan2014', color=color, alpha=0.3)
+#     ax.plot(np.log10(10**mstar), y, color='black')
+    return mstar, y, y_upper, y_lower
 
-def SMF_Moustakas(ax, z, color = "blue"):
-    if z < 0.5:
-        log_mstar = np.array([9,9.1,9.2,9.3,9.4,9.5,9.6,9.7,9.8,9.9,10,10.1,10.2,10.3,10.4,10.5,10.6,10.7,10.8,10.9,11,11.1,11.2,11.3,11.4,11.5,11.6,11.7,11.8,11.9,12])
-        y_val_raw = np.array([-1.899,-1.923,-1.970,-2.031,-2.055,-2.106,-2.144,-2.179,-2.188,-2.2160,-2.2340,-2.2350,-2.2620,-2.2520,-2.2850,-2.3170,-2.3650,-2.4190,-2.5040,-2.6070,-2.7280,-2.8880,-3.1040,-3.3320,-3.6060,-3.953,-4.363,-4.778,-5.255,-5.87,-6.49])
 
-        ax.scatter(log_mstar,10**y_val_raw,marker="+", color = color, label = "Moustakas 2013")
-        return None
-    else:
-        return None
-
-def SFR_Whitacker(ax, z, color='blue'):
+def SFR_Whitacker(z, color='blue'):
 
     z_vals = [0.5, 1, 1.5, 2]
 
@@ -162,12 +156,7 @@ def SFR_Whitacker(ax, z, color='blue'):
         log_sfr_err = [0.06,0.03,0.03,0.03,0.03,0.05,0.08,0.06,0.10,0.12,0.17]
         
 
-    print(len(log_sfr))
-    print(len(log_sfr_err))
-    ax.errorbar(log_mstar, log_sfr, yerr=log_sfr_err,color=color, label = "Whitacker 2014")
-    ax.legend()
-
-    return None
+    return log_mstar, log_sfr, log_sfr_err
 
 # def Baldry():
 #     """Plotting GSMF values from Baldry et al. (2008)"""
