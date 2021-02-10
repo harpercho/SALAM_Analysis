@@ -63,3 +63,31 @@ def radius_cut(halo, idx):
     diskf = filt.Sphere(str(RVIR*0.2) +' kpc') #20% Virial Radius
     
     return halo[diskf]
+
+def half_stellar_radius(halo):
+    half_sm = np.sum(halo.s) * 0.5
+
+    max_high_r = np.max(halo.star['r'])
+    test_r = 0.5 * max_high_r
+    testrf = f.LowPass('r', test_r)
+    min_low_r = 0.0
+    test_sm = halo[testrf].s
+    it = 0
+    while ((np.abs(test_sm - half_sm) / half_sm) > 0.1):
+        it = it + 1
+        if (it > 20):
+            break
+
+        if (test_sm > half_sm):
+            test_r = 0.5 * (min_low_r + test_r)
+        else:
+            test_r = (test_r + max_high_r) * 0.5
+        testrf = f.LowPass('r', test_r)
+        test_sm = halo[testrf].s
+
+        if (test_sm > half_sm):
+            max_high_r = test_r
+        else:
+            min_low_r = test_r
+
+    return test_r

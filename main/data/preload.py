@@ -122,7 +122,7 @@ if __name__ == '__main__':
     zred = sim.properties['z']    
     num_halos = len(halo_catalogue)
     
-    OUTPUT = os.path.join("/scratch/hc2347/pickles/{}".format(box),'test{:.3f}.p'.format(zred))
+    OUTPUT = os.path.join("/scratch/hc2347/pickles/test/{}".format(box),'halfstellar{:.3f}.p'.format(zred))
     
     
     main(path, step)
