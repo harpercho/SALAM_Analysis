@@ -35,6 +35,8 @@ def getParticleInfo(halo, storage):
     ngas = len(halo.gas)
     ndm = len(halo.dm)
     
+    print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
+    
     storage.update({'npart': npart, 'nstar': nstar, 'ngas': ngas, 'ndm':ndm})
     
     #print("Obtained particle info", flush = True)
@@ -74,7 +76,10 @@ def getOxygenAbundance(halo, storage, temp):
     coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
     
     try:
-        storage['oxh'] = np.log10(np.sum(halo.g[coolgasf]['OxMassFrac'])/(16*np.sum(halo.g[coolgasf]['hydrogen']))) + 12
+        print("Cool gas hydrogen: " + str(np.sum(halo.g[coolgasf]['hydrogen'])))
+        oxh = np.log10(np.sum(halo.g[coolgasf]['OxMassFrac'])/(16*np.sum(halo.g[coolgasf]['hydrogen']))) + 12
+        print(oxh)
+        storage['oxh'] = oxh
     except:
         print("Unable to obtain oxh")
         return None

@@ -22,7 +22,7 @@ def make_future_runner(idx):
 
     # Center halo
     center(halo) #applies a transformation
-    smallhalo = radius_cut(halo, idx)
+    smallhalo = half_stellar_radius(halo)
     
     # Give physical units.
     halo.physical_units()
@@ -32,13 +32,14 @@ def make_future_runner(idx):
     # From quantities.py. This file contains all the actual quantity obtaining utilities.
     # Each of these functions require a storage dictionary to update/add into.
     print("starting obtaining process for halo " + str(idx),flush=True)
+    getParticleInfo(halo, halo_dict)
     getParticleInfo(smallhalo, halo_dict)
-    getMasses(halo, halo_dict)
-    getSFR(smallhalo, halo_dict, 10)
-    getSFR(smallhalo, halo_dict, 100)
-    getColdGas(halo, halo_dict, coldgastemp)
-    getOxygenAbundance(halo, halo_dict, coldgastemp)
-    getStellarMetallicity(halo, halo_dict, halo_dict['mstar'])
+#     getMasses(halo, halo_dict)
+#     getSFR(smallhalo, halo_dict, 10)
+#     getSFR(smallhalo, halo_dict, 100)
+#     getColdGas(halo, halo_dict, coldgastemp)
+#     getOxygenAbundance(halo, halo_dict, coldgastemp)
+#     getStellarMetallicity(smallhalo, halo_dict, halo_dict['mstar'])
     
     
     halo_dict['ID'] = idx
@@ -83,8 +84,8 @@ def main(path, step):
 
     # Distribute
     with concurrent.futures.ProcessPoolExecutor(max_workers=PROC_N) as executor:
-        result = executor.map(make_future_runner, range(1,15))
-        #result = executor.map(make_future_runner, halolist)
+        #result = executor.map(make_future_runner, range(1,5))
+        result = executor.map(make_future_runner, halolist)
         flat_results = list(result)
     
     # Save it all
@@ -96,7 +97,7 @@ def main(path, step):
     print('Done')
 
 if __name__ == '__main__':
-    
+        
     '''
     Usage: python main/data/preload.py /scratch/kld8/simulations/LRZ_Planck60 planck.new.hydro.60_600.00832
     '''
@@ -122,7 +123,7 @@ if __name__ == '__main__':
     zred = sim.properties['z']    
     num_halos = len(halo_catalogue)
     
-    OUTPUT = os.path.join("/scratch/hc2347/pickles/test/{}".format(box),'halfstellar{:.3f}.p'.format(zred))
+    OUTPUT = os.path.join("/scratch/hc2347/pickles/test/",'halfstellar{:.3f}.p'.format(zred))
     
     
     main(path, step)

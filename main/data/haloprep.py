@@ -65,15 +65,16 @@ def radius_cut(halo, idx):
     return halo[diskf]
 
 def half_stellar_radius(halo):
-    half_sm = np.sum(halo.s) * 0.5
+    half_sm = np.sum(halo.star['mass'].in_units('Msol'))* 0.5
 
-    max_high_r = np.max(halo.star['r'])
+    max_high_r = np.max(halo.star['r'].in_units('kpc'))
+    print(max_high_r)
     test_r = 0.5 * max_high_r
-    testrf = f.LowPass('r', test_r)
+    testrf = filt.LowPass('r', test_r)
     min_low_r = 0.0
-    test_sm = halo[testrf].s
+    test_sm = np.sum(halo[testrf].star['mass'].in_units('Msol'))
     it = 0
-    while ((np.abs(test_sm - half_sm) / half_sm) > 0.1):
+    while ((np.abs(test_sm - half_sm) / half_sm) > 0.01):
         it = it + 1
         if (it > 20):
             break
@@ -82,12 +83,15 @@ def half_stellar_radius(halo):
             test_r = 0.5 * (min_low_r + test_r)
         else:
             test_r = (test_r + max_high_r) * 0.5
-        testrf = f.LowPass('r', test_r)
-        test_sm = halo[testrf].s
+        testrf = filt.LowPass('r', test_r)
+        test_sm = np.sum(halo[testrf].star['mass'].in_units('Msol'))
 
         if (test_sm > half_sm):
             max_high_r = test_r
         else:
             min_low_r = test_r
 
-    return test_r
+    print("Half stellar radius found as: {}".format(test_r))
+    diskf = filt.Sphere(str(test_r) +' kpc')
+    
+    return halo[diskf]
