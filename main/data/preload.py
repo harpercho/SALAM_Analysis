@@ -22,7 +22,13 @@ def make_future_runner(idx):
 
     # Center halo
     center(halo) #applies a transformation
-    smallhalo = half_stellar_radius(halo)
+    
+    try:
+        smallhalo = half_stellar_radius(halo)
+    except Exception as e:
+        print(e)
+        print("Sticking with regular halo.")
+        smallhalo = halo
     
     # Give physical units.
     halo.physical_units()
@@ -33,13 +39,13 @@ def make_future_runner(idx):
     # Each of these functions require a storage dictionary to update/add into.
     print("starting obtaining process for halo " + str(idx),flush=True)
     getParticleInfo(halo, halo_dict)
-    getParticleInfo(smallhalo, halo_dict)
-#     getMasses(halo, halo_dict)
-#     getSFR(smallhalo, halo_dict, 10)
-#     getSFR(smallhalo, halo_dict, 100)
-#     getColdGas(halo, halo_dict, coldgastemp)
-#     getOxygenAbundance(halo, halo_dict, coldgastemp)
-#     getStellarMetallicity(smallhalo, halo_dict, halo_dict['mstar'])
+    #getParticleInfo(smallhalo, halo_dict)
+    getMasses(halo, halo_dict)
+    getSFR(smallhalo, halo_dict, 10)
+    getSFR(smallhalo, halo_dict, 100)
+    getColdGas(halo, halo_dict, coldgastemp)
+    getOxygenAbundance(halo, halo_dict, coldgastemp, idx)
+    getStellarMetallicity(smallhalo, halo_dict, halo_dict['mstar'])
     
     
     halo_dict['ID'] = idx
@@ -52,7 +58,7 @@ def make_future_runner(idx):
 
 def main(path, step):
     
-    PROC_N = 4 # number of worker processes
+    PROC_N = 5 # number of worker processes
     
     # Check if there are halos in the snapshot
     if num_halos <= 1.5:
@@ -84,7 +90,7 @@ def main(path, step):
 
     # Distribute
     with concurrent.futures.ProcessPoolExecutor(max_workers=PROC_N) as executor:
-        #result = executor.map(make_future_runner, range(1,5))
+        #result = executor.map(make_future_runner, range(15098,15105))
         result = executor.map(make_future_runner, halolist)
         flat_results = list(result)
     
@@ -123,7 +129,7 @@ if __name__ == '__main__':
     zred = sim.properties['z']    
     num_halos = len(halo_catalogue)
     
-    OUTPUT = os.path.join("/scratch/hc2347/pickles/test/",'halfstellar{:.3f}.p'.format(zred))
+    OUTPUT = os.path.join("/scratch/hc2347/pickles/test/",'halfstellar_run0_{:.3f}.p'.format(zred))
     
     
     main(path, step)

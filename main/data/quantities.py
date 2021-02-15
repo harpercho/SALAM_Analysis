@@ -35,7 +35,10 @@ def getParticleInfo(halo, storage):
     ngas = len(halo.gas)
     ndm = len(halo.dm)
     
-    print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
+    if nstar == 0:
+        print("This halo has no stars.")
+    
+    #print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
     
     storage.update({'npart': npart, 'nstar': nstar, 'ngas': ngas, 'ndm':ndm})
     
@@ -68,7 +71,7 @@ def getStellarMetallicity(halo, storage, mstar):
     storage['z_star'] = zstar
     #print("Obtained STELLAR METALLICITY", flush = True)
 
-def getOxygenAbundance(halo, storage, temp):
+def getOxygenAbundance(halo, storage, temp, idx):
     '''
     According to Tremonti et al 2004
     '''
@@ -76,10 +79,16 @@ def getOxygenAbundance(halo, storage, temp):
     coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
     
     try:
-        print("Cool gas hydrogen: " + str(np.sum(halo.g[coolgasf]['hydrogen'])))
-        oxh = np.log10(np.sum(halo.g[coolgasf]['OxMassFrac'])/(16*np.sum(halo.g[coolgasf]['hydrogen']))) + 12
-        print(oxh)
+        coolgash = np.sum(halo.g[coolgasf]['hydrogen'])
+        #print("Cool gas hydrogen: " + str(np.sum(halo.g[coolgasf]['hydrogen'])))
+        if coolgash == 0:
+            oxh = 0
+            print("No cool gas for halo with stellar radius " + str(np.max(halo.star['r'].in_units('kpc'))))
+        else:
+            oxh = np.log10(np.sum(halo.g[coolgasf]['OxMassFrac'])/(16*coolgash)) + 12
+            #print("Oxh is {}".format(oxh))
         storage['oxh'] = oxh
-    except:
+    except Exception as e:
+        print(e)
         print("Unable to obtain oxh")
         return None
