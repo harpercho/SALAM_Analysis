@@ -19,16 +19,12 @@ def getMasses(halo, storage):
     storage.update({'mstar':mstar, 'mgas':mgas})
     
     
-def getColdGas(halo, storage):
-    # Halo can be a halo copy. Storage must be dict.
-    temp = 1.5e4
+def getColdGas(halo, storage, temp):
     coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
-    
     storage['mgascool'] = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
     
     
 def getParticleInfo(halo, storage):
-    
     npart = len(halo)
     nstar = len(halo.star)
     ngas = len(halo.gas)
@@ -36,36 +32,36 @@ def getParticleInfo(halo, storage):
     
     if nstar == 0:
         print("This halo has no stars.")
+
+    print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
     
     storage.update({'npart': npart, 'nstar': nstar, 'ngas': ngas, 'ndm':ndm})
     
-
-def getSFR(halo, storage, Myr):
     
+def getSFR(halo, storage, Myr):
     fifmyrf = filt.LowPass('age', str(Myr) + ' Myr')
     storage['sfr_'+str(Myr)] = np.sum(halo.star[fifmyrf]['mass'].in_units('Msol')) / (Myr*10**6)
     
     
 def getMetallicity(halo, storage):
     mgas = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
-    
     if mgas > 0:
         zgas = np.sum(halo.g[coolgasf]['mass'].in_units('Msol')*halo.g[coolgasf]['metals'])/mgas
     else:
         zgas = 0
     storage['z_gas'] = zgas
-    
     #print("Obtained metallicity", flush = True)
     
-def getStellarMetallicity(halo, storage):
-    mstar = np.sum(halo.star['mass'].in_units('Msol'))
+    
+def getStellarMetallicity(halo, storage, mstar):
     if mstar > 0:
         zstar = np.sum(halo.s['mass'].in_units('Msol')*halo.s['metals'])/mstar
     else:
         zstar = 0
     storage['z_star'] = zstar
 
-def getOxygenAbundance(halo, storage):
+    
+def getOxygenAbundance(halo, storage, temp):
     '''
     According to Tremonti et al 2004
     '''

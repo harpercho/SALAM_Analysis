@@ -70,19 +70,26 @@ def do_filter(a, b):
 def nihao(quantity, z):
     """Load NIHAO pickles"""
 
-    NIHAO_PATH = "/scratch/kld8/pickle_NIHAO.p"
+    NIHAO_PATH = "/scratch/hc2347/pickles/nihao/pickle_NIHAO.p"
 
     nihao = pickle.load(open(NIHAO_PATH, 'rb'))
-    
     retval = []
     
     for (k,v) in nihao.items():
-        if z == 0:
-            if 1.5765166949677223e-14 in v:
-                halo_dict = v[1.5765166949677223e-14]
-        if z == 4:
-            if 4.0219197196751315 in v:
-                halo_dict = v[4.0219197196751315]
-        retval.append(halo_dict[quantity])
-    
+        for (zgal, gal) in v.items():
+            if zgal < 1:
+                zerogal = gal
+            if zgal > 3:
+                fourgal = gal
+        try:
+            if z == 0:
+                retval.append(zerogal[quantity])
+            elif z == 4:
+                halo_dict = fourgal
+                retval.append(fourgal[quantity])
+            else:
+                print("Else: " + str(z))
+        except:
+            retval.append(0)
+                
     return np.array(retval)

@@ -123,6 +123,10 @@ def plot_oxh(oxh,mstar, savepath=None):
 
     x = np.log10(mstar)
     y = oxh
+<<<<<<< HEAD
+=======
+    print(len(y))
+>>>>>>> stellar_radius
     x,y = plot_tools.do_filter(x,y)
     
     hb = plt.hexbin(x, y, gridsize= 150, bins='log',cmap='Blues')
@@ -146,7 +150,11 @@ def plot_oxh(oxh,mstar, savepath=None):
 
     ax.axis([xmin, xmax, ymin, ymax])
     
+<<<<<<< HEAD
     nihao_x = plot_tools.nihao('Mstar',0)
+=======
+    nihao_x = plot_tools.nihao('mstar',0)
+>>>>>>> stellar_radius
     nihao_y = plot_tools.nihao('oxh',0)
         
     ax.scatter(np.log10(nihao_x), nihao_y, color='maroon', label = "NIHAO Classic")
@@ -154,6 +162,7 @@ def plot_oxh(oxh,mstar, savepath=None):
     ax.legend(frameon=False)
     ax.tick_params(direction='in', which='both')
     ax.set_ylim(6,10)
+<<<<<<< HEAD
     #ax.set_xlim(8.5,12)
     
     if savepath != None:
@@ -200,6 +209,11 @@ def plot_stellar_metallicity(z_star, m_star):
     ax.set_xlim(7,12)
     
     plt.savefig("/scratch/hc2347/reports/60/Center_Gallazzi_SMZR.png")
+=======
+    ax.set_xlim(7,12)
+    plt.show()
+    plt.savefig("/scratch/hc2347/reports/60/CenterCold_MZR_Oxh.png")
+>>>>>>> stellar_radius
     
 def plot_Moster(entry, savepath=None):
     from pynbody.plot.stars import moster
@@ -275,5 +289,52 @@ def plot_SFR(entry, savepath = None):
     ax.legend(frameon=False)
     plt.tight_layout()
     
+<<<<<<< HEAD
     if savepath != None:
     	plt.savfig(savepath)
+=======
+    plt.savefig('/scratch/hc2347/reports/60/sfr_100_v1.png')
+    
+def plot_stellar_metallicity(z_star, m_star):
+
+    z_sol = 0.013 # primordial Solar metallicity
+
+
+    x = np.log10(m_star)
+    y = np.log10(z_star/z_sol)
+    gallazzi = np.genfromtxt('/scratch/hc2347/main/visualization/obs/Gallazzi_2005_SMZ_z0.csv',unpack=True,skip_header=2,delimiter=',')
+    logmstar_tr = gallazzi[0]
+
+    median_tr = gallazzi[1]
+    sixteen_tr = gallazzi[2]
+    eightyfour_tr = gallazzi[3]
+
+    fig, ax = plt.subplots(figsize=(8,6))
+    
+    plt.hexbin(x,y,gridsize=100,bins='log',cmap="Blues")
+#     cb = plt.colorbar()
+#     cb.set_label("counts")
+
+    nihao_x = np.array(plot_tools.nihao('mstar',0))
+    nihao_y = np.array([np.sum(z_vals) for z_vals in plot_tools.nihao('z_star',0)])
+        
+    print(nihao_x[:10])
+    print(nihao_y[:10])
+        
+    ax.scatter(np.log10(nihao_x), np.log10(nihao_y/z_sol), color='maroon', label = "NIHAO Classic")
+    
+    
+#     ax.plot(logmstar_tr, median_tr, c='black',label = "Gallazzi 2005")
+#     ax.plot(logmstar_tr, sixteen_tr, linestyle='dashed',color='grey')
+#     ax.plot(logmstar_tr, eightyfour_tr, linestyle='dashed',color='grey')
+    
+#     ax.fill_between(logmstar_tr, sixteen_tr, y2 = eightyfour_tr, alpha = 0.2, color='grey' )
+#     ax.set_ylabel('$log(Z_{*}/Z_\odot)$',fontsize=12)
+#     ax.set_xlabel('$ log M_{*}/M_\odot$',fontsize=12)
+    ax.legend()
+
+    ax.set_ylim(-2,0.5)
+    ax.set_xlim(7,12)
+    
+    plt.savefig("/scratch/hc2347/reports/60/Center_Gallazzi_SMZR.png")
+>>>>>>> stellar_radius
