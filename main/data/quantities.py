@@ -18,18 +18,12 @@ def getMasses(halo, storage):
     
     storage.update({'mstar':mstar, 'mgas':mgas})
     
-    #print("Obtained masses", flush=True)
-    
 def getColdGas(halo, storage, temp):
-    # Halo can be a halo copy. Storage must be dict.
     coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
-    
     storage['mgascool'] = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
     
-    #print("Obtained coldgas", flush = True)
     
 def getParticleInfo(halo, storage):
-    
     npart = len(halo)
     nstar = len(halo.star)
     ngas = len(halo.gas)
@@ -37,31 +31,25 @@ def getParticleInfo(halo, storage):
     
     if nstar == 0:
         print("This halo has no stars.")
-    
-    #print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
+    print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
     
     storage.update({'npart': npart, 'nstar': nstar, 'ngas': ngas, 'ndm':ndm})
     
-    #print("Obtained particle info", flush = True)
-
+    
 def getSFR(halo, storage, Myr):
-    # Halo can be a copy
-    # Myr must be an int or float
     fifmyrf = filt.LowPass('age', str(Myr) + ' Myr')
     storage['sfr_'+str(Myr)] = np.sum(halo.star[fifmyrf]['mass'].in_units('Msol')) / (Myr*10**6)
     
-    #print("Obtained SFR", flush = True)
     
 def getMetallicity(halo, storage):
     mgas = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
-    
     if mgas > 0:
         zgas = np.sum(halo.g[coolgasf]['mass'].in_units('Msol')*halo.g[coolgasf]['metals'])/mgas
     else:
         zgas = 0
     storage['z_gas'] = zgas
-    
     #print("Obtained metallicity", flush = True)
+    
     
 def getStellarMetallicity(halo, storage, mstar):
     if mstar > 0:
@@ -69,9 +57,9 @@ def getStellarMetallicity(halo, storage, mstar):
     else:
         zstar = 0
     storage['z_star'] = zstar
-    #print("Obtained STELLAR METALLICITY", flush = True)
 
-def getOxygenAbundance(halo, storage, temp, idx):
+    
+def getOxygenAbundance(halo, storage, temp):
     '''
     According to Tremonti et al 2004
     '''
@@ -86,7 +74,7 @@ def getOxygenAbundance(halo, storage, temp, idx):
             print("No cool gas for halo with stellar radius " + str(np.max(halo.star['r'].in_units('kpc'))))
         else:
             oxh = np.log10(np.sum(halo.g[coolgasf]['OxMassFrac'])/(16*coolgash)) + 12
-            #print("Oxh is {}".format(oxh))
+            print("Oxh is {}".format(oxh))
         storage['oxh'] = oxh
     except Exception as e:
         print(e)

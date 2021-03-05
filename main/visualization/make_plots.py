@@ -115,7 +115,7 @@ def plot_oxh(oxh,mstar):
     fig, ax = plt.subplots(figsize = (9,7))
 
     # Add tremonti observations
-    tremonti = np.genfromtxt('/scratch/hc2347/references/obs/Tremonti_2004_mzr.csv',unpack=True,skip_header=2,delimiter=',')
+    tremonti = np.genfromtxt('/scratch/hc2347/main/visualization/obs/Tremonti_2004_MZR_z0.csv',unpack=True,skip_header=2,delimiter=',')
     median_tr = tremonti[3]
     sixteen_tr = tremonti[2]
     eightyfour_tr = tremonti[4]
@@ -123,7 +123,8 @@ def plot_oxh(oxh,mstar):
 
     x = np.log10(mstar)
     y = oxh
-    x,y = do_filter(x,y)
+    print(len(y))
+    x,y = plot_tools.do_filter(x,y)
     
     hb = plt.hexbin(x, y, gridsize= 100, bins='log',cmap='Blues')
     plt.colorbar(hb)
@@ -142,15 +143,15 @@ def plot_oxh(oxh,mstar):
 
     ax.axis([xmin, xmax, ymin, ymax])
     
-    nihao_x = nihao('Mstar',0)
-    nihao_y = nihao('oxh',0)
+    nihao_x = plot_tools.nihao('mstar',0)
+    nihao_y = plot_tools.nihao('oxh',0)
         
     ax.scatter(np.log10(nihao_x), nihao_y, color='maroon', label = "NIHAO Classic")
     
     ax.legend()
     ax.set_ylim(6,10)
-    #ax.set_xlim(8.5,12)
-    
+    ax.set_xlim(7,12)
+    plt.show()
     plt.savefig("/scratch/hc2347/reports/60/CenterCold_MZR_Oxh.png")
     
 def plot_Moster(entry):
@@ -227,3 +228,46 @@ def plot_SFR(entry):
     plt.tight_layout()
     
     plt.savefig('/scratch/hc2347/reports/60/sfr_100_v1.png')
+    
+def plot_stellar_metallicity(z_star, m_star):
+
+    z_sol = 0.013 # primordial Solar metallicity
+
+
+    x = np.log10(m_star)
+    y = np.log10(z_star/z_sol)
+    gallazzi = np.genfromtxt('/scratch/hc2347/main/visualization/obs/Gallazzi_2005_SMZ_z0.csv',unpack=True,skip_header=2,delimiter=',')
+    logmstar_tr = gallazzi[0]
+
+    median_tr = gallazzi[1]
+    sixteen_tr = gallazzi[2]
+    eightyfour_tr = gallazzi[3]
+
+    fig, ax = plt.subplots(figsize=(8,6))
+    
+    plt.hexbin(x,y,gridsize=100,bins='log',cmap="Blues")
+#     cb = plt.colorbar()
+#     cb.set_label("counts")
+
+    nihao_x = np.array(plot_tools.nihao('mstar',0))
+    nihao_y = np.array([np.sum(z_vals) for z_vals in plot_tools.nihao('z_star',0)])
+        
+    print(nihao_x[:10])
+    print(nihao_y[:10])
+        
+    ax.scatter(np.log10(nihao_x), np.log10(nihao_y/z_sol), color='maroon', label = "NIHAO Classic")
+    
+    
+#     ax.plot(logmstar_tr, median_tr, c='black',label = "Gallazzi 2005")
+#     ax.plot(logmstar_tr, sixteen_tr, linestyle='dashed',color='grey')
+#     ax.plot(logmstar_tr, eightyfour_tr, linestyle='dashed',color='grey')
+    
+#     ax.fill_between(logmstar_tr, sixteen_tr, y2 = eightyfour_tr, alpha = 0.2, color='grey' )
+#     ax.set_ylabel('$log(Z_{*}/Z_\odot)$',fontsize=12)
+#     ax.set_xlabel('$ log M_{*}/M_\odot$',fontsize=12)
+    ax.legend()
+
+    ax.set_ylim(-2,0.5)
+    ax.set_xlim(7,12)
+    
+    plt.savefig("/scratch/hc2347/reports/60/Center_Gallazzi_SMZR.png")
