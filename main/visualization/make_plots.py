@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import sys, os, glob, pickle, struct
 import plot_tools
 
-def plot_HMF(simpath, entry, ax=None):
+def plot_HMF(simpath, entry, ax=None, save=True):
     """Plot the halo mass function. If there are no axes given, make a figure and axes"""
     
     z = entry["zred"]
@@ -29,7 +29,8 @@ def plot_HMF(simpath, entry, ax=None):
     ax.tick_params(direction='in', which='both')
     plt.tight_layout()
     
-    plt.savefig("/scratch/hc2347/reports/60/HMF/z{}.png".format(z))
+    if save == True:
+        plt.savefig("/scratch/hc2347/reports/60/HMF/z{}.png".format(z))
     
 def plot_SMF(entry, bins):
     """Plot the stellar mass function and save reports directory."""
@@ -65,31 +66,28 @@ def plot_SMF(entry, bins):
     
 def plot_coldgas(mgas,mstar):
     
-    mstar, mgas = do_filter(mstar, mgas)
+    mstar, mgas = plot_tools.do_filter(mstar, mgas)
     
     fg = mgas/mstar
     
     x = np.log10(mstar)
     y = np.log10(fg)
-
     
-    fig, ax = plt.subplots(figsize = (9,7))
+    fig, ax = plt.subplots(figsize = (8,6), dpi=200)
     
     print(str(len(mstar)) + ' number of points.')
     
     hb = ax.hexbin(x,y,gridsize= 50, bins='log',cmap='Blues')
     cb = fig.colorbar(hb, ax=ax)
     
-    peebles = np.genfromtxt('/scratch/hc2347/references/obs/Peebles_2014_coldgas.csv',unpack=True,skip_header=2,delimiter=',')
+    peebles = np.genfromtxt('obs/Peebles_2014_CG_z0.csv',unpack=True,skip_header=2,delimiter=',')
     logmstar_pb = peebles[0]
     median_pb = peebles[1]
     sixteen_pb = peebles[2]
     eightyfour_pb = peebles[3]
     
-    nihao_x = nihao('Mstar',0)
-    nihao_y = nihao('Mcool',0)/nihao('Mstar',0)
-    print(nihao_x[:15])
-    print(nihao_y[:15])
+    nihao_x = plot_tools.nihao('mstar',0)
+    nihao_y = plot_tools.nihao('mgascool',0)/plot_tools.nihao('mstar',0)
         
     ax.scatter(np.log10(nihao_x), np.log10(nihao_y), color='maroon', label = "NIHAO Classic")
     
@@ -106,13 +104,13 @@ def plot_coldgas(mgas,mstar):
     ax.legend()
 
     
-    plt.title("Cold Gas Fraction")
+    #plt.title("Cold Gas Fraction")
     plt.savefig("/scratch/hc2347/reports/cold_gas.png")
 
     
-def plot_oxh(oxh,mstar, savepath=None):
+def plot_oxh(oxh, mstar, savepath=None):
     
-    fig, ax = plt.subplots(figsize = (9,7))
+    fig, ax = plt.subplots(figsize = (8,6), dpi = 200)
 
     # Add tremonti observations
     tremonti = np.genfromtxt('/scratch/hc2347/main/visualization/obs/Tremonti_2004_MZR_z0.csv',unpack=True,skip_header=2,delimiter=',')
@@ -125,25 +123,26 @@ def plot_oxh(oxh,mstar, savepath=None):
     y = oxh
 
     x,y = plot_tools.do_filter(x,y)
+        
+    xmin = 7
+    xmax = x.max()
+    ymin = y.min()
+    ymax = y.max()
     
-    hb = plt.hexbin(x, y, gridsize= 150, bins='log',cmap='Blues')
-    plt.colorbar(hb)
+    hb = plt.hexbin(x, y, gridsize= 100, bins='log',cmap='Blues', extent=[xmin, xmax, ymin, 10])
+    #plt.colorbar(hb)
     
     def TremontiFit(logmstar):
         # Valid over the range 8.5 to 11.5
         return - 1.492 + 1.847*logmstar - 0.08026*(logmstar**2)
-    ax.plot(np.linspace(8.5, 11.5), TremontiFit(np.linspace(8.5,11.5)))
+    #ax.plot(np.linspace(8.5, 11.5), TremontiFit(np.linspace(8.5,11.5)))
     ax.plot(logmstar_tr, median_tr, c='black', label = "Tremonti 2004 fit")
     ax.plot(logmstar_tr, sixteen_tr, linestyle='dashed',color='grey')
     ax.plot(logmstar_tr, eightyfour_tr, linestyle='dashed',color='grey')
     ax.fill_between(logmstar_tr, sixteen_tr, y2 = eightyfour_tr, alpha = 0.1, color='grey')
     ax.set_ylabel('$12+\log_{10}(O/H))$',fontsize=12)
     ax.set_xlabel('$ log M_{*}/M_\odot$',fontsize=12)
-    
-    xmin = 7
-    xmax = x.max()
-    ymin = y.min()
-    ymax = y.max()
+
 
     ax.axis([xmin, xmax, ymin, ymax])
     
@@ -156,10 +155,13 @@ def plot_oxh(oxh,mstar, savepath=None):
     ax.tick_params(direction='in', which='both')
     ax.set_ylim(6,10)
     ax.set_xlim(7,12)
-    plt.show()
-    plt.savefig("/scratch/hc2347/reports/60/CenterCold_MZR_Oxh.png")
     
-def plot_Moster(entry, savepath=None):
+    if savepath==None:
+        plt.savefig("/scratch/hc2347/reports/60/CenterCold_MZR_Oxh.png")
+    else:
+        plt.savefig(savepath)
+    
+def plot_Moster(entry, ax=None, savepath=None):
     from pynbody.plot.stars import moster
 
     z = entry["zred"]
@@ -167,12 +169,13 @@ def plot_Moster(entry, savepath=None):
     ylabel = '$\\rm{log_{10}}(M_{\star}/\\rm M_{\odot})$'
     label = '$z \;=\; {}$'.format(z)
     
-    fig, ax = plt.subplots(figsize=(7,5), dpi = 300)
+    if ax == None:
+        fig, ax = plt.subplots(figsize=(7,5), dpi = 200)
     
     x = np.log10(np.array(entry["mvir"]))
     y = np.log10(np.array(entry["mstar"]))
     x, y = plot_tools.do_filter(x,y)
-    ax.hexbin(x, y, gridsize=50,cmap='Blues', bins='log')
+    ax.hexbin(x, y, gridsize=50, cmap='Blues', bins='log')
     
     # Moster
     xmasses = np.logspace(np.log10(min(entry['mvir'])),1+np.log10(max(entry['mvir'])),20)
@@ -184,8 +187,8 @@ def plot_Moster(entry, savepath=None):
                     color='grey', alpha=0.2)
     
     # NIHAO
-    nihao_mstar = plot_tools.nihao('Mstar',0)
-    nihao_mhalo = plot_tools.nihao('Mvir',0)
+    nihao_mstar = plot_tools.nihao('mstar',0)
+    nihao_mhalo = plot_tools.nihao('mvir',0)
     ax.scatter(np.log10(nihao_mhalo), np.log10(nihao_mstar), color='maroon', label = 'Nihao Classic')
 
     
@@ -208,7 +211,7 @@ def plot_SFR(entry, savepath = None):
     xlabel = '$\\rm{log_{10}}(M_{\star}/\\rm M_{\odot})$'
     ylabel = '$\\rm{log_{10}(SFR/M_{\odot}\,yr^{-1})}$'
     
-    fig, ax = plt.subplots(figsize=(7,5), dpi = 300)
+    fig, ax = plt.subplots(figsize=(7,5), dpi = 200)
     
     xmin = 7
     xmax = 12
@@ -220,7 +223,7 @@ def plot_SFR(entry, savepath = None):
     #x, y = plot_tools.do_filter(x,y)
     ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
 
-    ax.hexbin(x, y,  gridsize = 100, bins = 'log', cmap = 'Blues')
+    ax.hexbin(x, y,  gridsize = 100, bins = 'log', cmap = 'Blues',extent=[xmin, xmax, ymin, ymax])
 
     nihao_x = plot_tools.nihao('Mstar',0)
     nihao_y = plot_tools.nihao('SFR_100',0)
@@ -235,7 +238,7 @@ def plot_SFR(entry, savepath = None):
     
     plt.savefig('/scratch/hc2347/reports/60/sfr_100_v1.png')
     
-def plot_stellar_metallicity(z_star, m_star):
+def plot_stellar_metallicity(z_star, m_star, ax = None, savepath = None):
 
     z_sol = 0.013 # primordial Solar metallicity
 
@@ -249,32 +252,36 @@ def plot_stellar_metallicity(z_star, m_star):
     sixteen_tr = gallazzi[2]
     eightyfour_tr = gallazzi[3]
 
-    fig, ax = plt.subplots(figsize=(8,6))
+    if ax == None:
+        fig, ax = plt.subplots(figsize=(8,6), dpi = 200)
+    xmin = 7.5
+    xmax = 12
+    ymin = -2
+    ymax = 0.5
     
-    plt.hexbin(x,y,gridsize=100,bins='log',cmap="Blues")
+    plt.hexbin(x,y,gridsize=100,bins='log',cmap="Blues", extent=[xmin, xmax, ymin, ymax])
 #     cb = plt.colorbar()
 #     cb.set_label("counts")
 
     nihao_x = np.array(plot_tools.nihao('mstar',0))
-    nihao_y = np.array([np.sum(z_vals) for z_vals in plot_tools.nihao('z_star',0)])
-        
-    print(nihao_x[:10])
-    print(nihao_y[:10])
-        
+    nihao_y = np.array([np.sum(z_vals) for z_vals in plot_tools.nihao('z_star',0)])    
     ax.scatter(np.log10(nihao_x), np.log10(nihao_y/z_sol), color='maroon', label = "NIHAO Classic")
     
     
-#     ax.plot(logmstar_tr, median_tr, c='black',label = "Gallazzi 2005")
-#     ax.plot(logmstar_tr, sixteen_tr, linestyle='dashed',color='grey')
-#     ax.plot(logmstar_tr, eightyfour_tr, linestyle='dashed',color='grey')
+    ax.plot(logmstar_tr, median_tr, c='black',label = "Gallazzi 2005")
+    ax.plot(logmstar_tr, sixteen_tr, linestyle='dashed',color='grey')
+    ax.plot(logmstar_tr, eightyfour_tr, linestyle='dashed',color='grey')
     
-#     ax.fill_between(logmstar_tr, sixteen_tr, y2 = eightyfour_tr, alpha = 0.2, color='grey' )
-#     ax.set_ylabel('$log(Z_{*}/Z_\odot)$',fontsize=12)
-#     ax.set_xlabel('$ log M_{*}/M_\odot$',fontsize=12)
-    ax.legend()
+    ax.fill_between(logmstar_tr, sixteen_tr, y2 = eightyfour_tr, alpha = 0.2, color='grey' )
+    ax.set_ylabel('$log(Z_{*}/Z_\odot)$',fontsize=12)
+    ax.set_xlabel('$ log M_{*}/M_\odot$',fontsize=12)
+    ax.legend(frameon=False)
 
     ax.set_ylim(-2,0.5)
     ax.set_xlim(7,12)
     
-    plt.savefig("/scratch/hc2347/reports/60/Center_Gallazzi_SMZR.png")
+    if savepath == None:
+        plt.savefig("/scratch/hc2347/reports/60/Center_Gallazzi_SMZR.png")
+    else:
+        plt.savefig(savepath)
 

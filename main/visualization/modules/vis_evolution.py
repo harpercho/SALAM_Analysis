@@ -60,6 +60,6 @@ for idx, entry in enumerate(entries):
     plot_mf(ax_last,filter_list(entry["mstar"]),50,entry["zred"])
     ax_last.legend()
 
-plt.savefig("./plots/SMF_60.png")
+plt.savefig("/scratch/hc2347/reports/SMF_60.png")
 
 
