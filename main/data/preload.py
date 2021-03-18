@@ -14,7 +14,6 @@ def make_future_runner(idx):
     
     print("{}: Working on halo {}/{}".format(multiprocessing.current_process().name, idx ,num_halos), flush = True)
     
-    # If there is no halo dictionary, create a halo dictionary and give it an ID property.
     halo_dict = {}
     
     # Load a copy of the target halo.
@@ -23,34 +22,35 @@ def make_future_runner(idx):
     # Center halo
     center(halo) #applies a transformation
     
-    try:
-        smallhalo = half_stellar_radius(halo)
-    except Exception as e:
-        print(e)
-        print("Sticking with regular halo.")
-        smallhalo = halo
+    # try:
+        # smallhalo = half_stellar_radius(halo)
+    # except Exception as e:
+        # print(e)
+        # print("Sticking with regular halo.")
+        # smallhalo = halo
     
     # Give physical units.
     halo.physical_units()
     
-    coldgastemp = 1.5e4
+    # coldgastemp = 1.5e4
     
-    # From quantities.py. This file contains all the actual quantity obtaining utilities.
-    # Each of these functions require a storage dictionary to update/add into.
-    print("starting obtaining process for halo " + str(idx),flush=True)
-    getParticleInfo(halo, halo_dict)
-    #getParticleInfo(smallhalo, halo_dict)
-    getMasses(halo, halo_dict)
-    getSFR(smallhalo, halo_dict, 10)
-    getSFR(smallhalo, halo_dict, 100)
-    getColdGas(halo, halo_dict, coldgastemp)
-    getOxygenAbundance(halo, halo_dict, coldgastemp, idx)
-    getStellarMetallicity(smallhalo, halo_dict, halo_dict['mstar'])
+    # # From quantities.py. This file contains all the actual quantity obtaining utilities.
+    # # Each of these functions require a storage dictionary to update/add into.
+    # print("starting obtaining process for halo " + str(idx),flush=True)
+    # getParticleInfo(halo, halo_dict)
+    # #getParticleInfo(smallhalo, halo_dict)
+    # getMasses(halo, halo_dict)
+    # getSFR(smallhalo, halo_dict, 10)
+    # getSFR(smallhalo, halo_dict, 100)
+    # getColdGas(halo, halo_dict, coldgastemp)
+    # getOxygenAbundance(smallhalo, halo_dict, coldgastemp)
+    # getStellarMetallicity(smallhalo, halo_dict, halo_dict['mstar'])
     
-    
+    # ADD YOUR OWN QUANTITIES HERE
+	# For example:
     halo_dict['ID'] = idx
     halo_dict['mvir'] = np.sum(halo['mass'].in_units('Msol'))
-    halo_dict['mdm'] = np.sum(halo.dm['mass'].in_units('Msol'))
+    halo_dict['mstar'] = np.sum(halo.s['mass'].in_units('Msol'))
     
     print('Halo ' + str(idx) + ' complete')
     
@@ -92,13 +92,14 @@ def main(path, step):
 if __name__ == '__main__':
         
     '''
-    Usage: python main/data/preload.py /scratch/kld8/simulations/LRZ_Planck60 planck.new.hydro.60_600.00832
+    Usage: python preload.py /scratch/kld8/simulations/LRZ_Planck60 planck.new.hydro.60_600.00832
     '''
     
     path = sys.argv[1]
     step = sys.argv[2]
     
     box = step.split('.')[3].split('_')[0]
+    print(box)
     
     # The path for the sim we want to analyze.
     SIM_FILE = os.path.join(path, step)
@@ -110,13 +111,19 @@ if __name__ == '__main__':
     print("Main threads: " + str(pynbody.config['number_of_threads']), flush=True)
     
     sim = pynbody.load(SIM_FILE)
-    halo_catalogue = sim.halos()
+    try:
+        halo_catalogue = sim.halos()
+    except:
+        print("No halo catalogue for " + step)
+        sys.exit()
+        
     halo_properties = sim.halos(dummy=True)
 
     zred = sim.properties['z']    
     num_halos = len(halo_catalogue)
     
-    OUTPUT = os.path.join("/scratch/hc2347/pickles/test/",'halfstellar_run0_{:.3f}.p'.format(zred))
+	# IMPORTANT! Change this output path to whatever you need
+    OUTPUT = os.path.join("/scratch/hc2347/pickles/30/",'run01_{:.3f}.p'.format(zred))
     
     
     main(path, step)

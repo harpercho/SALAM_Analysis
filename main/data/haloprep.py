@@ -12,6 +12,23 @@ def isHostHalo(h):
     
 def isBigHalo(h,cut):
     return len(h) > cut
+
+def isIsolated(h, catalog):
+    halo = catalog[idx]
+    x, y, z = halo.properties['Xc'], halo.properties['Yc'], halo.properties['Zc']
+    dist_lim = halo.properties['Rvir']
+    
+    i = 0
+    while i < idx:
+        other_halo = catalog[i]
+        x_, y_, z_ = other_halo.properties['Xc'], other_halo.properties['Yc'], other_halo.properties['Zc']
+        dist = ((x_ - x)**2 + (y_ - y)**2 + (z_ - z)**2)**0.5
+
+        if dist < dist_lim:
+            return False
+        i += 1
+    return True
+    
     
 def makeFilteredHalos(h):
     
@@ -95,3 +112,11 @@ def half_stellar_radius(halo):
     diskf = filt.Sphere(str(test_r) +' kpc')
     
     return halo[diskf]
+
+# Clean sample: put a cut on 100 stellar particles and hallo mass max based on Moster
+
+# Add more observations
+
+# Stick with the clean sample 10^9 and make plots for isolated galaxies and whole population
+# Select all galaxies that do not have any halo similar or larger within 3 virial - flag galaxies as isolated or non-isolated. There should be no other galaxy
+# Salam isolated - still plot them as single plots
