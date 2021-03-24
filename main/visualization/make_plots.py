@@ -32,13 +32,14 @@ def plot_HMF(simpath, entry, ax=None, save=True):
     if save == True:
         plt.savefig("/scratch/hc2347/reports/60/HMF/z{}.png".format(z))
     
-def plot_SMF(entry, bins):
+def plot_SMF(entry, bins, ax=None):
     """Plot the stellar mass function and save reports directory."""
     
     z = entry["zred"]
     stellar_mass_density = plot_tools.filter_list(entry["mstar"],10**7, 10**12)
-        
-    fig, ax = plt.subplots(figsize=(7,5), dpi = 150)
+    
+    if ax == None:
+        fig, ax = plt.subplots(figsize=(7,5), dpi = 150)
     
     # Plot Stellar Mass Function from density
     x, smf = plot_tools.plot_mf(ax, stellar_mass_density, bins, entry["zred"])
@@ -135,7 +136,11 @@ def plot_oxh(oxh, mstar, savepath=None):
     def TremontiFit(logmstar):
         # Valid over the range 8.5 to 11.5
         return - 1.492 + 1.847*logmstar - 0.08026*(logmstar**2)
+    def BergMZR(logmstar):
+        return 5.43 + 0.30*logmstar
     #ax.plot(np.linspace(8.5, 11.5), TremontiFit(np.linspace(8.5,11.5)))
+    
+    ax.plot(np.linspace(5, 10), BergMZR(np.linspace(5,10)), label = "Berg et al. 2012")
     ax.plot(logmstar_tr, median_tr, c='black', label = "Tremonti 2004 fit")
     ax.plot(logmstar_tr, sixteen_tr, linestyle='dashed',color='grey')
     ax.plot(logmstar_tr, eightyfour_tr, linestyle='dashed',color='grey')
@@ -156,9 +161,8 @@ def plot_oxh(oxh, mstar, savepath=None):
     ax.set_ylim(6,10)
     ax.set_xlim(7,12)
     
-    if savepath==None:
-        plt.savefig("/scratch/hc2347/reports/60/CenterCold_MZR_Oxh.png")
-    else:
+    plt.show()
+    if savepath:
         plt.savefig(savepath)
     
 def plot_Moster(entry, ax=None, savepath=None):

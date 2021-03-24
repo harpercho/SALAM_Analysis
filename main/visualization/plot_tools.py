@@ -56,7 +56,7 @@ def do_filter(a, b):
     """Filter two lists such that if one entry is invalid, both elements from the lists are removed."""
     
     def is_valid(elm):
-        return elm > 1 and np.isfinite(elm)
+        return elm > 0 and np.isfinite(elm)
 
     #print(len(b))
     for idx in range(len(b) - 1, -1, -1):

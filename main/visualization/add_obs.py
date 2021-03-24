@@ -158,6 +158,8 @@ def SFR_Whitacker(z, color='blue'):
 
     return log_mstar, log_sfr, log_sfr_err
 
+def BergMZR(mstar):
+	return 5.43 + 0.30*np.log10(mstar)
 # def Baldry():
 #     """Plotting GSMF values from Baldry et al. (2008)"""
 
