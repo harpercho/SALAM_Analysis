@@ -20,23 +20,19 @@ def getMasses(halo):
     return mvir, mstar, mgas, mdm
     
     
-def getColdGas(halo, temp, smallify = True):
+def getColdGas(halo, temp):
     """
-	Based on Peeples 2014
-	Set smallify to False if the halo being passed is already cut according to radius.
-	Temperature sets the lowpass limit.
-	"""
-	
-	if smallify:
-		halo = half_stellar_radius(halo)
-
-	coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
+    Based on Peeples 2014
+    Set smallify to False if the halo being passed is already cut according to radius.
+    Temperature sets the lowpass limit.
+    """
+    coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
     mgascool = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
     
-	return mgascool
+    return mgascool
     
 def getParticleInfo(halo):
-	npart = len(halo)
+    npart = len(halo)
     nstar = len(halo.star)
     ngas = len(halo.gas)
     ndm = len(halo.dm)
@@ -46,21 +42,21 @@ def getParticleInfo(halo):
 
     print("npart: {}, nstar: {}, ngas: {}, ndm: {}".format(npart, nstar, ngas, ndm))
     
-   return npart, nstar, ngas, ndm
+    return npart, nstar, ngas, ndm
     
 
-def getSFR(halo, storage, Myr):
+def getSFR(halo, Myr):
     fifmyrf = filt.LowPass('age', str(Myr) + ' Myr')
     return np.sum(halo.star[fifmyrf]['mass'].in_units('Msol')) / (Myr*10**6)
     
     
-def getMetallicity(halo, storage, smallify = True):
-	"""
-	Oxygen abundance of a halo based on Tremonti
-	Set smallify to false if the halo is already cut.
-	"""
-	if smallify:
-		halo = half_stellar_radius(halo)
+def getMetallicity(halo, smallify = True):
+    """
+    Oxygen abundance of a halo based on Tremonti
+    Set smallify to false if the halo is already cut.
+    """
+    if smallify:
+        halo = half_stellar_radius(halo)
 
     mgas = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
     if mgas > 0:
@@ -78,20 +74,21 @@ def getStellarMetallicity(halo, mstar):
     return zstar
 
     
-def getOxygenAbundance(halo, storage, smallify = True):
+def getOxygenAbundance(halo, smallify = False):
     '''
     According to Tremonti et al 2004.
-	Set smallify to false if the halo is already cut.
-	'''
+    Set smallify to false if the halo is already cut.
+    '''
     
     temp = 1.5e4
     coolgasf = filt.And(filt.LowPass('temp',temp),filt.HighPass('rho','0.03 m_p cm^-3'))
     
-	# Tremonti 
-	try:
-		halo = half_stellar_radius(halo)
-	except Exception as e:
-		print(e)
+    # Tremonti 
+    if smallify:
+        try:
+            halo = half_stellar_radius(halo)
+        except Exception as e:
+            print(e)
 
     try:
         coolgash = np.sum(halo.g[coolgasf]['hydrogen'])
@@ -100,7 +97,7 @@ def getOxygenAbundance(halo, storage, smallify = True):
             print("No cool gas for halo with stellar radius " + str(np.max(halo.star['r'].in_units('kpc'))))
         else:
             oxh = np.log10(np.sum(halo.g[coolgasf]['OxMassFrac'])/(16*coolgash)) + 12
-        storage['oxh'] = oxh
+        return oxh
     except Exception as e:
         print(e)
         print("Unable to obtain oxh")
