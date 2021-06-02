@@ -120,7 +120,7 @@ if __name__ == '__main__':
     num_halos = len(halo_catalogue)
     
     # IMPORTANT! Change this output path to whatever you need
-    OUTPUT = os.path.join("/scratch/hc2347/pickles/60/run0325_" + str(box) + "_" +str(zred) + ".p")
+    OUTPUT = os.path.join("/scratch/hc2347/pickles/60/Final" + str(box) + "_" + str(zred) + ".p")
     
     
     main(path, step)

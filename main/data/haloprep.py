@@ -25,8 +25,13 @@ def isIsolated(h, catalog):
         dist = ((x_ - x)**2 + (y_ - y)**2 + (z_ - z)**2)**0.5
 
         if dist < dist_lim:
+            # no longer an isolated candidate
             return False
         i += 1
+    
+    # check with the next few smaller halos
+    
+    
     return True
     
     

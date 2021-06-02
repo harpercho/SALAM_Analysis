@@ -1,5 +1,4 @@
 # A module for functions to return required quantities.
-# Halo can be a halo copy. Storage must be dict.
     
 import os
 import sys
@@ -48,22 +47,6 @@ def getParticleInfo(halo):
 def getSFR(halo, Myr):
     fifmyrf = filt.LowPass('age', str(Myr) + ' Myr')
     return np.sum(halo.star[fifmyrf]['mass'].in_units('Msol')) / (Myr*10**6)
-    
-    
-def getMetallicity(halo, smallify = True):
-    """
-    Oxygen abundance of a halo based on Tremonti
-    Set smallify to false if the halo is already cut.
-    """
-    if smallify:
-        halo = half_stellar_radius(halo)
-
-    mgas = np.sum(halo.gas[coolgasf]['mass'].in_units('Msol'))
-    if mgas > 0:
-        zgas = np.sum(halo.g[coolgasf]['mass'].in_units('Msol')*halo.g[coolgasf]['metals'])/mgas
-    else:
-        zgas = 0
-    return zgas
     
     
 def getStellarMetallicity(halo, mstar):
